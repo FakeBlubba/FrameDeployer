@@ -2,6 +2,9 @@ import scraping_and_summarization
 import media_finder
 import sentiment_analysis
 import text_to_speech
+import subtitles
+import os
+import editing 
 
 def generate_resources(trend_number, text_articles = 8, text_length = 7, desc_articles = 5, desc_length = 3, language = "English"):
     language = "English"
@@ -13,10 +16,8 @@ def generate_resources(trend_number, text_articles = 8, text_length = 7, desc_ar
     images = media_finder.searchAndDownloadImage(trend, text_script)
     if images == [] or not text_script or images == None:
         return
-    print(images)
-    part = str(images[0].split("/"))[1:-1].split("\\")[:-1]
-    path = "\\".join(part)
-
+    part = str(images[0].split("/"))[:-1].split("\\")
+    path = os.path.join("media", part[2])
     tags = [f"#{tag}" for index, tag in enumerate(tags) if index < 15]
     tags = " ".join(tags)
     music_path = ""
@@ -24,19 +25,22 @@ def generate_resources(trend_number, text_articles = 8, text_length = 7, desc_ar
 
 
     audio_file = text_to_speech.get_text_to_speech(text_script, path, language)
-    return {
+    srt_file = subtitles.generate_srt(audio_file, path)
+    output =  {
         "Trend": trend, 
         "TextScript": text_script, 
         "Audio": audio_file,
+        "subs": srt_file,
         "Description": description,
         "Tags": tags,
         "Images": images,
         "MusicPath": music_path
         }
+    editing.create_video_with_data(output)
+    
 def main():
-    output = generate_resources(0)
+    output = generate_resources(1, 10, 10)
     if output != None:
-        print(output)
-        return
-    print("NIENTE DA FARE PORCO DIO")
+        editing.create_video_with_data(output)
+        return output
 main()

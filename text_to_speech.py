@@ -1,17 +1,15 @@
 import pyttsx3
 import os
 def get_text_to_speech(text, path, speaker_name = "English"):
-    path = path[8:-1]
     engine = pyttsx3.init()
     voices = engine.getProperty('voices')
     for voice in voices:
         if speaker_name in voice.name:
             engine.setProperty('voice', voice.id)
             break
-    engine.setProperty('rate', 120)
+    engine.setProperty('rate', 160)
     try:
-        folder_path = os.path.join("media", path, "speech.wav")
-
+        folder_path = os.path.join(path, "speech.wav")
         engine.save_to_file(text, folder_path)
         engine.runAndWait()
     except Exception as e:
