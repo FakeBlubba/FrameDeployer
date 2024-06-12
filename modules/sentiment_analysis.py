@@ -4,11 +4,11 @@ def get_summarization_emotion(summarization):
     
     blob = TextBlob(summarization)
 
-    sentimento = blob.sentiment
+    sentiment = blob.sentiment
 
-    if sentimento.polarity > 0:
+    if sentiment.polarity > 0:
         return 1
-    elif sentimento.polarity < 0:
+    elif sentiment.polarity < 0:
         return -1
     else:
         return 0

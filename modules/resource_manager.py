@@ -1,9 +1,17 @@
-from modules.local_imports import *
 import os
 
-class ResourceGenerator:
-    def __init__(self, trend_number, text_articles=8, text_length=7, desc_articles=5, desc_length=3, language="English"):
+import modules.web_scraper
+import modules.editing
+import modules.sentiment_analysis
+import modules.subtitles
+import modules.text_to_speech
+import modules.summarize
+import modules.media_finder
+
+class ResourceManager:
+    def __init__(self, trend_number, number_of_articles_to_read = 10, text_articles=8, text_length=7, desc_articles=5, desc_length=3, language="English"):
         self.trend_number = trend_number
+        self.number_of_articles_to_read = number_of_articles_to_read
         self.text_articles = text_articles
         self.text_length = text_length
         self.desc_articles = desc_articles
@@ -11,10 +19,15 @@ class ResourceGenerator:
         self.language = language
 
     def generate_resources(self):
-        trends = modules.scraping_and_summarization.get_trends()
-        trend = trends[self.trend_number]
-        text_script, tags = modules.scraping_and_summarization.apply_summarize_article_on_trend(trend, self.text_articles, self.text_length)
-        description, _ = modules.scraping_and_summarization.apply_summarize_article_on_trend(trend, self.desc_articles, self.desc_length)
+        trend = modules.web_scraper.get_trends()
+        contents = modules.web_scraper.get_trend_contents(self.trend_number, self.number_of_articles_to_read)
+        desc_contents_scrapped = modules.web_scraper.get_trend_contents(self.trend_number, self.desc_articles)
+        if(not contents):
+            print("Error during the searching for the selected trend.")
+            return False
+        
+        text_script, tags = modules.summarize.apply_summarization_article_on_trend(contents, self.text_length)
+        description, _ = modules.summarize.apply_summarization_article_on_trend(desc_contents_scrapped, self.desc_length)
         images = modules.media_finder.searchAndDownloadImage(trend, text_script)
         
         if not images or not text_script:
@@ -45,7 +58,3 @@ class ResourceGenerator:
         if output:
             modules.editing.create_video_with_data(output)
             return output
-
-# Utilizzo della classe ResourceGenerator
-generator = ResourceGenerator(1, 10, 10)
-output = generator.main()

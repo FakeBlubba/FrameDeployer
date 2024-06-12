@@ -1,10 +1,7 @@
-from modules.local_imports import *
+import modules.resource_manager as rm
 
 def main():
-    generator = resourceGenerator(1, 10, 10)
-    output = generator.main()
-    #if output != None:
-    #   modules.editing.create_video_with_data(output)
+    manager = rm.ResourceManager(1, 10, 10)
+    output = manager.main()
     return output
-
 main()

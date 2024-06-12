@@ -1,29 +1,6 @@
-from pytrends.request import TrendReq
-from duckduckgo_search import DDGS
-import requests
-from bs4 import BeautifulSoup
 import re
 import nltk
 import heapq
-import modules.sentiment_analysis as sentiment_analysis 
-
-# returns an array of trends
-def get_trends():
-    pytrend = TrendReq()
-    return pytrend.trending_searches().iloc[:, 0].tolist()
-
-# returns a liist of articles based ona  topic
-def get_articles_on_topic(topic, max_searches):
-    with DDGS() as ddgs:
-        return [result for result in ddgs.text(topic, max_results=max_searches, safesearch="on")]
-
-# returns string of text with the text of the article  
-def get_site_content(url):
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, 'html.parser')
-    article_content = soup.find_all('p') 
-    output = "\n\n".join(part.get_text() for part in article_content[1:-1])
-    return output
 
 # Returns text preprocessed (hope)
 def preprocess_article(article_content):
@@ -76,12 +53,16 @@ def summarize_text(sentence_scores, number_of_sentences):
     return summary
     
 def apply_summarization_to_article(site_content, number_of_sentences):
+    print(site_content, "\n\n\n\n")
     site_content = re.split(r'(?<=[.!?]) +', site_content)
-    limit = len(site_content) / 3
+    print("\n\n\n\n\n")
+    print(len(site_content))
+    limit = len(site_content) // 3
+    print(limit)
     processed_list = [
-        " ".join(site_content[:int(round(limit))]), 
-        " ".join(site_content[int(round(limit)):int(round(2 * limit))]),
-        " ".join(site_content[int(round(2 * limit)):])
+        " ".join(site_content[:int(limit)]), 
+        " ".join(site_content[int(limit):int(2 * limit)]),
+        " ".join(site_content[int(2 * limit):])
         ]
     for index, element in enumerate(processed_list):
         
@@ -91,17 +72,10 @@ def apply_summarization_to_article(site_content, number_of_sentences):
         processed_list[index] = summarize_text(sentences, int(round(number_of_sentences / 3)))    
     return "\n".join(processed_list), words
 
-def apply_summarize_article_on_trend(trend, number_of_article_to_read, number_of_sentences):
-    black_list = ["https://en.wikipedia.org", "https://www.wikipedia.org"]
-
+def apply_summarization_article_on_trend(contents, number_of_sentences):
     summarizations = []
-
-    articles = get_articles_on_topic(trend, number_of_article_to_read)
-    for article in articles:
-        # Verifica se l'URL dell'articolo non è nella black_list prima di procedere
-        if any(blacklisted in article["href"] for blacklisted in black_list):
-            continue
-        content = get_site_content(article["href"])
+    for index, content in enumerate(contents):
+        content = contents[index]
         summarizations.append(apply_summarization_to_article(content, number_of_sentences)[0])
     summarized_text = "\n".join(summarizations)
 
