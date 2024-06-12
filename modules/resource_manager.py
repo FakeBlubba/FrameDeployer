@@ -28,7 +28,12 @@ class ResourceManager:
         
         text_script, tags = modules.summarize.apply_summarization_article_on_trend(contents, self.text_length)
         description, _ = modules.summarize.apply_summarization_article_on_trend(desc_contents_scrapped, self.desc_length)
-        images = modules.media_finder.searchAndDownloadImage(trend, text_script)
+        
+        if(not text):
+            print("Error during the summarization.")
+            return False
+        
+        images = modules.media_finder.searchAndDownloadImage(trend[self.trend_number], text_script)
         
         if not images or not text_script:
             return None

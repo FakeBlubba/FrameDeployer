@@ -5,7 +5,10 @@ import datetime
 import assemblyai as aai
 import nltk
 import re
-
+from dotenv import load_dotenv
+API_KEY = os.getenv("aai")
+print(API_KEY)
+aai.settings.api_key = API_KEY
 
 def format_timestamp(milliseconds):
     hours = milliseconds // (1000*60*60)
@@ -101,7 +104,9 @@ def remove_chunks():
             os.remove(filename)   
     
 def generate_srt(audio_path, path, break_point = 3):
-    aai.settings.api_key = "INSERT API"
+
+    load_dotenv()
+
     srt_path = os.path.join(path, "sub.srt")
     audio = get_audio_info(srt_path, srt_path)
     audio_file = audio[0]

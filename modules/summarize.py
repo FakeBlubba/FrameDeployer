@@ -53,12 +53,8 @@ def summarize_text(sentence_scores, number_of_sentences):
     return summary
     
 def apply_summarization_to_article(site_content, number_of_sentences):
-    print(site_content, "\n\n\n\n")
     site_content = re.split(r'(?<=[.!?]) +', site_content)
-    print("\n\n\n\n\n")
-    print(len(site_content))
     limit = len(site_content) // 3
-    print(limit)
     processed_list = [
         " ".join(site_content[:int(limit)]), 
         " ".join(site_content[int(limit):int(2 * limit)]),
