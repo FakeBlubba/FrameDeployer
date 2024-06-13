@@ -2,7 +2,7 @@ import unittest
 import summarize
 import web_scraper
 import sentiment_analysis
-
+import media_finder
 class TestWebScraper(unittest.TestCase):
 
     def test_get_trends(self):
@@ -26,7 +26,7 @@ class TestSummarization(unittest.TestCase):
         article_content = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero."
         processed, formatted = summarize.preprocess_article(article_content)
         self.assertEqual(processed, article_content)
-        self.assertNotEqual(formatted, article_content)  # Add assertion for formatted content
+        self.assertNotEqual(formatted, article_content)  
 
     def test_get_most_used_words(self):
         formatted_text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
@@ -71,7 +71,24 @@ class TestSentimentAnalysis(unittest.TestCase):
         summarization = "This article was poorly written and lacked useful information."
         emotion = sentiment_analysis.get_summarization_emotion(summarization)
         self.assertEqual(emotion, -1)
+class TestMediaFinder(unittest.TestCase):
+    def test_searchAndDownloadImage(self):
+        trend = "Apollo"
+        text = "Sample text for searching images"
+        images = media_finder.searchAndDownloadImage(trend, text)
+        self.assertTrue(images)
+        self.assertIsInstance(images, list)
+        self.assertTrue(all(isinstance(img, str) for img in images))
+    
+    def test_selectMusicByEmotion(self):
+        emotion = "positive"
+        music_info = media_finder.selectMusicByEmotion(emotion)
+        self.assertTrue(music_info)
+        self.assertIn("path", music_info)
+        self.assertIn("cc", music_info)
 
+if __name__ == '__main__':
+    unittest.main()
 
 if __name__ == '__main__':
     unittest.main()

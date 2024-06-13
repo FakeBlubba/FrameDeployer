@@ -5,6 +5,17 @@ from PIL import Image, ImageFilter
 import numpy as np
 
 def convert_to_rgb_resize_and_blur(image_path):
+    ''' 
+    Convert the image to RGB format, resize while maintaining aspect ratio, and apply Gaussian blur.
+    
+    Parameters:
+    - image_path (str): Path of the image to process.
+    
+    Returns:
+    - blurred_img_np (np.ndarray): Numpy array of the processed image.
+    - new_width (int): Width of the resized image.
+    - new_height (int): Height of the resized image.
+    '''
     with Image.open(image_path) as img:
         original_width, original_height = img.size
         new_height = 1920
@@ -16,10 +27,21 @@ def convert_to_rgb_resize_and_blur(image_path):
         return blurred_img_np, new_width, new_height
 
 
-# Assicurati di aggiornare la funzione 'create_video_with_data' per utilizzare questa nuova funzione.
+# TODO: Update create_video_with_data with the next func
 
 
 def convert_to_rgb_resize_and_blur(image_path):
+    ''' 
+    Convert the image to RGB format, resize while maintaining aspect ratio, and apply Gaussian blur.
+    
+    Parameters:
+    - image_path (str): Path of the image to process.
+    
+    Returns:
+    - blurred_img_np (np.ndarray): Numpy array of the processed image.
+    - new_width (int): Width of the resized image.
+    - new_height (int): Height of the resized image.
+    '''
     with Image.open(image_path) as img:
         original_width, original_height = img.size
         new_height = 1920
@@ -31,6 +53,15 @@ def convert_to_rgb_resize_and_blur(image_path):
         return blurred_img_np, new_width, new_height
 
 def make_textclip(txt):
+    ''' 
+    Create a TextClip with the specified text, formatted in uppercase, centered, and styled with Arial-Bold font.
+    
+    Parameters:
+    - txt (str): Text to display in the TextClip.
+    
+    Returns:
+    - TextClip: Generated TextClip object.
+    '''
     txt = txt.upper()
     max_text_width = 1000  # Adatta questo valore alle tue necessità
     
@@ -39,6 +70,16 @@ def make_textclip(txt):
 
 
 def adjust_text_lines(text, words_per_line=4):
+    ''' 
+    Adjust the text to fit within specified words per line, splitting into multiple lines if necessary.
+    
+    Parameters:
+    - text (str): Original text to adjust.
+    - words_per_line (int): Maximum number of words per line.
+    
+    Returns:
+    - str: Adjusted text with line breaks.
+    '''
 
     words = text.split()  
     lines = [' '.join(words[i:i+words_per_line]) for i in range(0, len(words), words_per_line)]
@@ -46,35 +87,45 @@ def adjust_text_lines(text, words_per_line=4):
 
 
 def make_textclip_with_stroke(sub):
+    ''' 
+    Create a TextClip with stroke effect, adjusting font size to fit within specified dimensions.
+    
+    Parameters:
+    - sub (SubtitlesClip): SubtitlesClip object containing text to display.
+    
+    Returns:
+    - CompositeVideoClip: Composite video clip containing the text with stroke effect.
+    '''
     font_size = 100  
     max_width = 1000
     max_height = 1880
     
-    # Imposta un flag per controllare se il clip generato rispetta le dimensioni massime
     clip_fits = False
 
     while not clip_fits:
         sub.text = sub.text.upper()
         sub.text = adjust_text_lines(sub.text, words_per_line=3)  
 
-        # Crea il clip di testo principale
         txt_clip = TextClip(sub.text, fontsize=font_size, color='white', font='Arial-Bold', size=(max_width, 1880), method='caption')
         
-        # Crea il clip di stroke
         stroke_clip = TextClip(sub.text, fontsize=font_size + 4, color='black', font='Arial-Bold', stroke_width=8, size=(max_width, 1880), method='caption')
         
-        # Controlla se l'altezza del clip di testo supera il massimo consentito
         if txt_clip.size[1] > max_height:
-            font_size -= 1  # Riduci la dimensione del font e riprova
+            font_size -= 1  
         else:
-            clip_fits = True  # Il clip soddisfa i requisiti di dimensione
+            clip_fits = True  
 
-    # Centra il testo e lo stroke
     composite_clip = CompositeVideoClip([stroke_clip.set_position("center"), txt_clip.set_position("center")], size=(max_width, 1880))
     
     return composite_clip
 
 def create_video_with_data(data):
+    ''' 
+    Create a video using provided data, combining images, audio, subtitles, and music.
+    
+    Parameters:
+    - data (dict): Dictionary containing paths to audio, music, subtitles, images, and other metadata.
+    '''
     audio_path = data['Audio']
     music_path = data["MusicPath"]["path"]
     srt_path = data['subs']

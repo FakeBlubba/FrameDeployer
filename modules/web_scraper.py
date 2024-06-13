@@ -4,20 +4,43 @@ from duckduckgo_search import DDGS
 import requests
 from requests.exceptions import RequestException
 
-# Returns an array of trends
 def get_trends():
+    """
+    Retrieves current trending searches using Google Trends API.
+
+    Returns:
+        list: List of trending search topics.
+    """
     pytrend = TrendReq()
     return pytrend.trending_searches().iloc[:, 0].tolist()
 
-# Returns a list of articles based on a topic
 def get_articles_on_topic_excluding_blacklist(topic, max_searches, blacklist):
+    """
+    Searches for articles related to a given topic while excluding URLs in the blacklist.
+
+    Args:
+        topic (str): The topic of interest for article searches.
+        max_searches (int): Maximum number of search results to fetch.
+        blacklist (list): List of URLs to exclude from search results.
+
+    Returns:
+        list: List of filtered search results (articles).
+    """
     with DDGS() as ddgs:
         results = ddgs.text(topic, max_results=max_searches, safesearch="on")
         filtered_results = [result for result in results if result and not any(blacklisted in result.get("href", "") for blacklisted in blacklist)]
         return filtered_results
 
-# Returns string of text with the text of the article  
 def get_site_content(url):
+    """
+    Retrieves and extracts the textual content from a given URL.
+
+    Args:
+        url (str): URL of the article to fetch and parse.
+
+    Returns:
+        str or None: Extracted text content of the article, or None if failed to fetch.
+    """
     try:
         response = requests.get(url, timeout=10)  
         response.raise_for_status()  
@@ -34,6 +57,16 @@ def get_site_content(url):
         return None
 
 def get_trend_contents(trend_number, number_of_articles_to_read):
+    """
+    Retrieves the contents of articles related to a specific trending topic.
+
+    Args:
+        trend_number (int): Index of the trending topic to fetch articles for.
+        number_of_articles_to_read (int): Desired number of articles to fetch.
+
+    Returns:
+        list: List of article contents fetched for the trending topic.
+    """
     black_list = ["https://en.wikipedia.org", "https://www.wikipedia.org"]
     trends = get_trends()
     trend = trends[trend_number]

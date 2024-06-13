@@ -1,5 +1,6 @@
 import pyttsx3
 import os
+
 def get_text_to_speech(text, path, speaker_name = "English"):
     engine = pyttsx3.init()
     voices = engine.getProperty('voices')

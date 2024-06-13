@@ -10,6 +10,16 @@ from collections import Counter
 
 
 def simplified_lesk(context_sentence, synsets):
+    """
+    Performs simplified Lesk algorithm to disambiguate word senses.
+
+    Args:
+        context_sentence (str): The context sentence for disambiguation.
+        synsets (list): List of WordNet synsets for a specific word.
+
+    Returns:
+        nltk.corpus.reader.wordnet.Synset or None: The best sense found or None.
+    """
     context = set(word_tokenize(context_sentence))
     max_overlap = 0
     best_sense = None
@@ -27,13 +37,31 @@ def simplified_lesk(context_sentence, synsets):
     return best_sense
 
 def get_synonyms(word):
+    """
+    Retrieves synonyms for a given word using WordNet.
+
+    Args:
+        word (str): The word to find synonyms for.
+
+    Returns:
+        list: A list of synonyms for the given word.
+    """
     synonyms = set()
     for syn in wn.synsets(word):
         for lemma in syn.lemmas():
-            synonyms.add(lemma.name())  # Aggiunge i sinonimi trovati al set
+            synonyms.add(lemma.name())
     return list(synonyms)
 
 def get_wordnet_pos(treebank_tag):
+    """
+    Maps NLTK's POS tags to WordNet's POS tags.
+
+    Args:
+        treebank_tag (str): The POS tag from NLTK.
+
+    Returns:
+        str or None: The corresponding WordNet POS tag or None if not found.
+    """
     if treebank_tag.startswith('J'):
         return wn.ADJ
     elif treebank_tag.startswith('V'):
@@ -46,7 +74,15 @@ def get_wordnet_pos(treebank_tag):
         return None
 
 def main_noun_from_sentence(sentence):
-    print("\n\n\n\n\n\n\n", sentence, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
+    """
+    Extracts the main noun from a sentence using POS tagging and WordNet.
+
+    Args:
+        sentence (str): The input sentence.
+
+    Returns:
+        str: The most common noun found in the sentence.
+    """
     tokens = word_tokenize(sentence)
     filtered_tokens = [word for word in tokens if word.lower() not in stopwords.words('english')]
     tagged = pos_tag(filtered_tokens)
@@ -59,6 +95,18 @@ def main_noun_from_sentence(sentence):
         return "No dominant noun found"
 
 def get_wiki_commons_image_url(trend_name, text, min_height, num_images):
+    """
+    Retrieves image URLs from Wikimedia Commons based on a trend and associated text.
+
+    Args:
+        trend_name (str): The trend or topic name.
+        text (str): The text context associated with the trend.
+        min_height (int): Minimum height requirement for images.
+        num_images (int): Number of images to retrieve.
+
+    Returns:
+        list: A list of URLs of the retrieved images.
+    """
     urls = []
     search_term = trend_name
     main_noun = main_noun_from_sentence(trend_name)
@@ -93,23 +141,42 @@ def get_wiki_commons_image_url(trend_name, text, min_height, num_images):
 
 
 def download_image(image_url, folder_path, image_name):
+    """
+    Downloads an image from a URL and saves it to a specified folder.
+
+    Args:
+        image_url (str): The URL of the image to download.
+        folder_path (str): The folder path to save the downloaded image.
+        image_name (str): The name to assign to the downloaded image.
+    """
     save_path = os.path.join(folder_path, image_name + ".jpg")
     headers = {
         'User-Agent': 'Mozilla/5.0'
     }
     try:
         with requests.get(image_url, headers=headers, stream=True) as response:
-            response.raise_for_status()  # Questo solleverà un'eccezione per codici di errore HTTP
+            response.raise_for_status()  
             with open(save_path, 'wb') as file:
                 for chunk in response.iter_content(chunk_size=8192):
                     file.write(chunk)
-            print(f"Download completed: {image_name}.jpg")
     except requests.exceptions.HTTPError as http_err:
-        print(f"HTTP error occurred: {http_err}")  # ad esempio, risposta 404 o 500
+        print(f"HTTP error occurred: {http_err}")  
     except Exception as err:
         print(f"An error occurred: {err}")
 
 def searchAndDownloadImage(trend, text, min_height=1080, number_of_images=16):
+    """
+    Searches for images related to a trend, downloads them, and returns their paths.
+
+    Args:
+        trend (str): The trend or topic to search images for.
+        text (str): The associated text context.
+        min_height (int): Minimum height requirement for images.
+        number_of_images (int): Number of images to download.
+
+    Returns:
+        list: List of paths where the downloaded images are saved.
+    """
     urls = get_wiki_commons_image_url(trend, text, min_height, number_of_images)
     main_noun = main_noun_from_sentence(trend)
     syns = get_synonyms(main_noun)
@@ -136,13 +203,24 @@ def searchAndDownloadImage(trend, text, min_height=1080, number_of_images=16):
 
     return output
 
-def selectMusicByEmotion(emotion):
-    folder_path = f"media/music/{emotion}"  
-    if folder_path.endswith('0'):
-        random_choice = random.choice([-1, 1])
-        folder_path = folder_path[:-1] + str(random_choice)
+def selectMusicByEmotion(emotion, folder_path):
+    """
+    Selects a random music file based on the provided emotion.
 
-    files = [f for f in os.listdir(folder_path) if f.endswith('.mp3')]
+    Args:
+        emotion (str): The emotion to select music for.
+
+    Returns:
+        dict or None: Dictionary containing the path of the selected music file
+                        and associated Creative Commons (CC) license information.
+                        Returns None if no suitable music files are found.
+    """
+    if emotion == "0":
+        emotion = random.choice([-1, 1])
+        
+    music_folder = os.path.join(folder_path, str(emotion))
+
+    files = [f for f in os.listdir(music_folder) if f.endswith('.mp3')]
 
     if not files:
         return None 
@@ -150,7 +228,7 @@ def selectMusicByEmotion(emotion):
     selected_file = random.choice(files)
     cc_info = ""
 
-    with open("media/music/CC.txt", "r") as cc_file:
+    with open(os.path.join(folder_path, "CC.txt"), "r") as cc_file:
         cc_list = [line for line in cc_file]
         for index, line in enumerate(cc_list):
             file_identifier = selected_file.rsplit('.', 1)[0].rsplit("[",1)[0]  

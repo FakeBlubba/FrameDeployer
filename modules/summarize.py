@@ -2,8 +2,17 @@ import re
 import nltk
 import heapq
 
-# Returns text preprocessed (hope)
 def preprocess_article(article_content):
+    """
+    Preprocesses the given article content by removing numeric references,
+    extra whitespace, and non-alphabetic characters.
+
+    Args:
+        article_content (str): The raw content of the article.
+
+    Returns:
+        tuple: A tuple containing the preprocessed article content and the formatted article content.
+    """
     article_content = re.sub(r'\[[0-9]*\]', ' ', article_content)
     article_content = re.sub(r'\s+', ' ', article_content)
     formatted_article_content = re.sub('[^a-zA-Z]', ' ', article_content )
@@ -11,6 +20,15 @@ def preprocess_article(article_content):
     return article_content, formatted_article_content
 
 def get_most_used_words(formatted_text):
+    """
+    Computes word frequencies in the formatted text, excluding stopwords.
+
+    Args:
+        formatted_text (str): The cleaned and formatted text of the article.
+
+    Returns:
+        dict: A dictionary where keys are words and values are their normalized frequencies.
+    """
     if len(formatted_text) < 50:
         return {"null": 0.1}
     stopwords = nltk.corpus.stopwords.words('english')
@@ -28,6 +46,16 @@ def get_most_used_words(formatted_text):
     return word_frequencies
 
 def get_most_sentence_scores(text, word_frequencies):
+    """
+    Calculates sentence scores based on word frequencies.
+
+    Args:
+        text (str): The text to be scored.
+        word_frequencies (dict): Dictionary of word frequencies.
+
+    Returns:
+        dict: A dictionary where keys are sentences and values are their scores.
+    """
     sentence_scores = {}
     sentence_list = nltk.sent_tokenize(text)
     if len(word_frequencies.keys()) == 1:
@@ -44,6 +72,16 @@ def get_most_sentence_scores(text, word_frequencies):
     return sentence_scores
 
 def summarize_text(sentence_scores, number_of_sentences):
+    """
+    Generates a summary from sentence scores using heapq to get top sentences.
+
+    Args:
+        sentence_scores (dict): Dictionary of sentence scores.
+        number_of_sentences (int): Number of sentences to include in the summary.
+
+    Returns:
+        str: The generated summary text.
+    """
     if len(sentence_scores.keys()) == 1:
         return ""
     elif(len(sentence_scores.keys()) < number_of_sentences + 5):
@@ -53,6 +91,16 @@ def summarize_text(sentence_scores, number_of_sentences):
     return summary
     
 def apply_summarization_to_article(site_content, number_of_sentences):
+    """
+    Applies summarization pipeline to a single article's content.
+
+    Args:
+        site_content (str): The content of the article.
+        number_of_sentences (int): Desired number of sentences in the summary.
+
+    Returns:
+        tuple: A tuple containing the summarized text and word frequencies used.
+    """
     site_content = re.split(r'(?<=[.!?]) +', site_content)
     limit = len(site_content) // 3
     processed_list = [
@@ -69,6 +117,16 @@ def apply_summarization_to_article(site_content, number_of_sentences):
     return "\n".join(processed_list), words
 
 def apply_summarization_article_on_trend(contents, number_of_sentences):
+    """
+    Applies summarization pipeline to a list of article contents.
+
+    Args:
+        contents (list): List of article contents.
+        number_of_sentences (int): Desired number of sentences in the final summarized text.
+
+    Returns:
+        tuple: A tuple containing the summarized text and word frequencies used.
+    """
     summarizations = []
     for index, content in enumerate(contents):
         content = contents[index]

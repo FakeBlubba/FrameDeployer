@@ -3,3 +3,8 @@ media/
 __pycache__/
 modules/__pycache__/
 myenv/
+.env
+create_doc.py
+Makefile
+make.bat
+source/
