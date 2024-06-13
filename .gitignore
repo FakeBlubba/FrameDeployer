@@ -1,6 +1,7 @@
 #   Folders
 media/
 source/
+data/
 
 #   Enviroment and enviroment variables files and folder
 .venv/
