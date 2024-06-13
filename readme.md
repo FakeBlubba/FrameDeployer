@@ -103,12 +103,3 @@ nltk.download('punkt')
 >
 > The project is currently under development. The documentation will come when the final build will be released.
 
-sequenceDiagram
-    participant ResourceManager
-    participant web_scraper
-    participant editing
-    participant sentiment_analysis
-    participant subtitles
-    participant text_to_speech
-    participant summarize
-    participant media_finder
