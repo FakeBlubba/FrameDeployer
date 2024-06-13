@@ -1,10 +1,17 @@
+#   Folders
 media/
+source/
+
+#   Enviroment and enviroment variables files and folder
 .venv/
-__pycache__/
-modules/__pycache__/
 myenv/
 .env
+
+#   Python folders
+__pycache__/
+modules/__pycache__/
+
+#   Files
 create_doc.py
 Makefile
 make.bat
-source/
