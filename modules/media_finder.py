@@ -46,6 +46,7 @@ def get_wordnet_pos(treebank_tag):
         return None
 
 def main_noun_from_sentence(sentence):
+    print("\n\n\n\n\n\n\n", sentence, "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
     tokens = word_tokenize(sentence)
     filtered_tokens = [word for word in tokens if word.lower() not in stopwords.words('english')]
     tagged = pos_tag(filtered_tokens)
@@ -64,7 +65,7 @@ def get_wiki_commons_image_url(trend_name, text, min_height, num_images):
     syns = wn.synsets(main_noun)
     best_sense = simplified_lesk(text, syns)
     if best_sense:
-        search_term = str(best_sense.lemmas()[0].name())  # Assicurati che questo sia corretto
+        search_term = str(best_sense.lemmas()[0].name())  
     API_ENDPOINT = "https://commons.wikimedia.org/w/api.php"
     params = {
         "action": "query",
@@ -74,7 +75,7 @@ def get_wiki_commons_image_url(trend_name, text, min_height, num_images):
         "gsrsearch": search_term,
         "gsrlimit": 50,
         "prop": "imageinfo",
-        "iiprop": "url|size|mime",  # Aggiungi "mime" per ottenere il tipo MIME dell'immagine
+        "iiprop": "url|size|mime", 
     }
     response = requests.get(API_ENDPOINT, params=params)
     data = response.json()

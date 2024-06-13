@@ -30,7 +30,7 @@ def get_site_content(url):
         return output
     
     except RequestException as e:
-        print(f"Website not reachable: {e}")
+        print(f"Article website not reachable, searching more... .")
         return None
 
 def get_trend_contents(trend_number, number_of_articles_to_read):
