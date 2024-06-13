@@ -98,48 +98,4 @@ sequenceDiagram
     participant text_to_speech
     participant summarize
     participant media_finder
-    
 
-```mermaid
-sequenceDiagram
-    participant ResourceManager
-    participant web_scraper
-    participant editing
-    participant sentiment_analysis
-    participant subtitles
-    participant text_to_speech
-    participant summarize
-    participant media_finder
-    
-    Note right of ResourceManager: Initiates resource generation for a given trend.
-    
-    ResourceManager->>web_scraper: get_trends()
-    web_scraper-->>ResourceManager: trends
-    
-    ResourceManager->>web_scraper: get_trend_contents(trend_number, number_of_articles_to_read)
-    web_scraper-->>ResourceManager: contents
-    
-    ResourceManager->>summarize: apply_summarization_article_on_trend(contents, text_length)
-    summarize-->>ResourceManager: text_script, tags
-    
-    ResourceManager->>summarize: apply_summarization_article_on_trend(desc_contents_scrapped, desc_length)
-    summarize-->>ResourceManager: description, _
-    
-    ResourceManager->>media_finder: searchAndDownloadImage(trend[trend_number], text_script)
-    media_finder-->>ResourceManager: images
-    
-    ResourceManager->>sentiment_analysis: get_summarization_emotion(text_script)
-    sentiment_analysis-->>ResourceManager: emotion
-    
-    ResourceManager->>text_to_speech: get_text_to_speech(text_script, path, language)
-    text_to_speech-->>ResourceManager: audio_file
-    
-    ResourceManager->>subtitles: generate_srt(audio_file, path)
-    subtitles-->>ResourceManager: srt_file
-    
-    ResourceManager->>media_finder: selectMusicByEmotion(emotion)
-    media_finder-->>ResourceManager: music_path
-    
-    ResourceManager-->>editing: create_video_with_data(output)
-
-```
