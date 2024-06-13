@@ -1,3 +1,17 @@
+
+
+<!-- toc -->
+
+- [FrameDeployer](#framedeployer)
+  * [Overview](#overview)
+  * [Features](#features)
+  * [Installation](#installation)
+    + [Prerequisites](#prerequisites)
+- [Example of usage](#example-of-usage)
+- [Documentation](#documentation)
+
+<!-- tocstop -->
+
 # FrameDeployer
 
 ## Overview
@@ -98,4 +112,3 @@ sequenceDiagram
     participant text_to_speech
     participant summarize
     participant media_finder
-
