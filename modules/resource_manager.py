@@ -1,6 +1,5 @@
 import os
 import shutil
-
 import modules.web_scraper
 import modules.editing
 import modules.sentiment_analysis
@@ -10,7 +9,7 @@ import modules.summarize
 import modules.media_finder
 
 class ResourceManager:
-    def __init__(self, trend_number, number_of_articles_to_read = 10, text_articles=8, text_length=7, desc_articles=5, desc_length=3, language="English"):
+    def __init__(self, trend_number, number_of_articles_to_read=10, text_articles=8, text_length=7, desc_articles=5, desc_length=3, language="English"):
         """
         Initializes the ResourceManager with parameters for generating resources.
 
@@ -41,74 +40,77 @@ class ResourceManager:
         trend = modules.web_scraper.get_trends()
         contents = modules.web_scraper.get_trend_contents(self.trend_number, self.number_of_articles_to_read)
         desc_contents_scrapped = modules.web_scraper.get_trend_contents(self.trend_number, self.desc_articles)
-        if(not contents):
-            print("Error: during the searching for the selected trend.")
-            return False
+        
+        if not contents:
+            print(f"Error: Unable to retrieve contents for trend {trend[self.trend_number]}.")
+            return None
         
         text_script, tags = modules.summarize.apply_summarization_article_on_trend(contents, self.text_length)
         description, _ = modules.summarize.apply_summarization_article_on_trend(desc_contents_scrapped, self.desc_length)
+        emoji = modules.sentiment_analysis.select_emoji_based_on_description(description)
         
-        if(not text_script):
-            print("Error: during the summarization.")
-            return False
+        if not text_script:
+            print("Error: Summarization failed.")
+            return None
         
         images = modules.media_finder.searchAndDownloadImage(trend[self.trend_number], text_script)
         
-        if not images or not text_script:
-            print("Error: during the search of images.")
-            return False
+        if not images:
+            print("Error: Image search/download failed.")
+            return None
         
         sentiment_analysis_output = modules.sentiment_analysis.get_summarization_emotion(text_script)
+        
         if not sentiment_analysis_output:
-            print("Error: during the sentiment analysis output.")
-            return False
+            print("Error: Sentiment analysis failed.")
+            return None
 
-        #   Setting up paths
         part = str(images[0].split("/"))[:-1].split("\\")
         path = os.path.join(part[0][2:], part[2])
         music_folder_path = os.path.join(part[0][2:], "music")
-        
-        #   Setting up tags for description
         tags = [f"#{tag}" for index, tag in enumerate(tags) if index < 15]
         tags = " ".join(tags)
-        
-        #   Setting up the music based on the emotion
         music_path = modules.media_finder.selectMusicByEmotion(sentiment_analysis_output, music_folder_path)
-        if not music_path:
-            print("Error: selecting the music path.")
-            shutil.rmtree(path)
-            return False
         
-        #   Setting up the tts audio file
+        if not music_path:
+            print("Error: Music selection failed.")
+            shutil.rmtree(path)
+            return None
+        
         audio_file = modules.text_to_speech.get_text_to_speech(text_script, path, self.language)
         
         if not audio_file:
-            print("Error: creating the Text-To-Speech.")
+            print("Error: Text-to-Speech conversion failed.")
             shutil.rmtree(path)
-            return False
+            return None
         
-        #   Converting Text-To-Speech into captions
         srt_file = modules.subtitles.generate_srt(audio_file, path)
         
         if not srt_file:
-            print("Error: creating the Text-To-Speech.")
+            print("Error: Subtitle generation failed.")
             shutil.rmtree(path)
-            return False
+            return None
         
         output = {
-            "Trend": trend, 
-            "TextScript": text_script, 
+            "Trend": trend,
+            "TextScript": text_script,
             "Audio": audio_file,
             "subs": srt_file,
-            "Description": description,
+            "Description": f"{emoji} {description[1:]}",
             "Tags": tags,
             "Images": images,
             "MusicPath": music_path
         }
+        
         return output
 
     def main(self):
         output = self.generate_resources()
+        
         if output:
             modules.editing.create_video_with_data(output)
-            return output
+            description_text = f"{output['Description']}\n\n🎵 Music: {output['MusicPath']['cc']}\n\n\n{output['Tags']}"
+            print(description_text)
+            return description_text
+        
+        return None
