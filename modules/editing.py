@@ -68,14 +68,14 @@ def edit_caption(txt):
     '''
     txt = txt.upper()
     max_text_width = 900
-    font_path = 'media/props/good times rg.otf'
+    #font_path = 'media/props/good times rg.otf'
     
 
     return TextClip(
         txt,
-        font=font_path,
+        font="Impact",
         fontsize=160,
-        color='#031a39',
+        color='white',
         stroke_color='#00bdff',
         stroke_width=1,
         size=(max_text_width, None),
