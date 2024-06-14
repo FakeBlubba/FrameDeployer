@@ -237,7 +237,7 @@ def selectMusicByEmotion(emotion, folder_path):
 
 
     result = {
-        "path": os.path.join(folder_path, selected_file),
+        "path": os.path.join(folder_path, str(emotion), selected_file),
         "cc": cc_info.strip()
     }
 

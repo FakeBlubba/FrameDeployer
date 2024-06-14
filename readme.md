@@ -91,6 +91,22 @@ nltk.download('framenet_v17')
 nltk.download('punkt')
 ```
 
+Now you have to install ImageMagick [clicking here](https://imagemagick.org/script/download.php). If you're on Windows you have to link the path of the executable you've installed in ```conf.py```:
+
+```python
+IMAGEMAGICK_BINARY = r"C:\\Program Files\\ImageMagick-7.1.1-Q16-HDRI\\magick.exe"
+```
+
+
+
+You have also to add your API key of assemblyAI transcriber engine in ```data/var.env```:
+
+```env
+aai="your-api-key"
+```
+
+
+
 # Example of usage
 
 > [!NOTE]

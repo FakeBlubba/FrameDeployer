@@ -3,6 +3,10 @@ from moviepy.video.tools.subtitles import SubtitlesClip
 import os
 from PIL import Image, ImageFilter
 import numpy as np
+import moviepy.config as mpy_config
+import conf
+
+mpy_config.change_settings({"IMAGEMAGICK_BINARY": conf.IMAGEMAGICK_BINARY})
 
 def convert_to_rgb_resize_and_blur(image_path):
     ''' 
@@ -63,7 +67,7 @@ def make_textclip(txt):
     - TextClip: Generated TextClip object.
     '''
     txt = txt.upper()
-    max_text_width = 1000  # Adatta questo valore alle tue necessità
+    max_text_width = 1000 
     
 
     return TextClip(txt, font='Arial-Bold', fontsize=80, color='white', size=(max_text_width, None), align='center').set_position('center')
@@ -162,8 +166,6 @@ def create_video_with_data(data):
     
     final_clip.write_videofile(output_video_path, fps=24)
 
-
-# Carica i dati come prima e chiama la funzione
 
 #data = {'Trend': 'Apollo', 'TextScript': 'The god was most commonly identified by either a bow or a musical instrument (usually a lyre, but sometimes a more specialized stringed instrument called a cithara). In addition to the bow, lyre, and cithara, Apollo was also represented by the tripod, a tall, three-footed structure (sometimes elaborately decorated) used for sacrifices and religious rituals.\nThis license lets others remix, tweak, and build upon this content non-commercially, as long as they credit the author and license their new creations under the identical terms. One second later the descent rocket engine was cut off, as the astronauts gazed down onto a sheet of lunar soil blown radially in all directions.\nApollo 8 carried out the first step of crewed lunar exploration: from Earth orbit it was injected into a lunar trajectory, completed lunar orbit, and returned safely to Earth. In the method ultimately employed, lunar orbit rendezvous, a powerful launch vehicle (Saturn V rocket) placed a 50-ton spacecraft in a lunar trajectory.', 'Audio': 'media\\Apollo12-02-2024\\speech.wav', 'subs': 'media\\Apollo12-02-2024\\sub.srt', 'Description': '\nThe god was most commonly identified by either a bow or a musical instrument (usually a lyre, but sometimes a more specialized stringed instrument called a cithara).\n', 'Tags': '#Toward #end #th #lunar #orbit #Apollo #spacecraft #became #two #separate #Columbia #piloted #Collins #Eagle #occupied', 'Images': ['media\\Apollo12-02-2024\\image_1.jpg', 'media\\Apollo12-02-2024\\image_2.jpg', 'media\\Apollo12-02-2024\\image_3.jpg', 'media\\Apollo12-02-2024\\image_4.jpg', 'media\\Apollo12-02-2024\\image_5.jpg', 'media\\Apollo12-02-2024\\image_6.jpg', 'media\\Apollo12-02-2024\\image_7.jpg', 'media\\Apollo12-02-2024\\image_8.jpg', 'media\\Apollo12-02-2024\\image_9.jpg', 'media\\Apollo12-02-2024\\image_10.jpg', 'media\\Apollo12-02-2024\\image_11.jpg', 'media\\Apollo12-02-2024\\image_12.jpg', 'media\\Apollo12-02-2024\\image_13.jpg', 'media\\Apollo12-02-2024\\image_14.jpg', 'media\\Apollo12-02-2024\\image_15.jpg', 'media\\Apollo12-02-2024\\image_16.jpg'], 'MusicPath': {'path': 'media/music/1\\Rameses B - Keep You [NCS Release].mp3', 'cc': 'Song: Rameses B - Keep You [NCS Release]\nMusic provided by NoCopyrightSounds\nFree Download/Stream: http://ncs.io/RB_KeepYou\nWatch: http://ncs.lnk.to/RB_KeepYouAT/youtube'}}
 #create_video_with_data(data)

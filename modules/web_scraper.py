@@ -3,6 +3,10 @@ from pytrends.request import TrendReq
 from duckduckgo_search import DDGS
 import requests
 from requests.exceptions import RequestException
+import threading
+
+class TimeoutException(Exception):
+    pass
 
 def get_trends():
     """
@@ -14,7 +18,7 @@ def get_trends():
     pytrend = TrendReq()
     return pytrend.trending_searches().iloc[:, 0].tolist()
 
-def get_articles_on_topic_excluding_blacklist(topic, max_searches, blacklist):
+def get_articles_on_topic_excluding_blacklist(topic, max_searches, blacklist, timeout=10):
     """
     Searches for articles related to a given topic while excluding URLs in the blacklist.
 
@@ -22,14 +26,26 @@ def get_articles_on_topic_excluding_blacklist(topic, max_searches, blacklist):
         topic (str): The topic of interest for article searches.
         max_searches (int): Maximum number of search results to fetch.
         blacklist (list): List of URLs to exclude from search results.
+        timeout (int): Timeout in seconds for the search.
 
     Returns:
-        list: List of filtered search results (articles).
+        list: List of filtered search results (articles), or empty list if timeout.
     """
-    with DDGS() as ddgs:
-        results = ddgs.text(topic, max_results=max_searches, safesearch="on")
-        filtered_results = [result for result in results if result and not any(blacklisted in result.get("href", "") for blacklisted in blacklist)]
-        return filtered_results
+    def search():
+        with DDGS() as ddgs:
+            results = ddgs.text(topic, max_results=max_searches, safesearch="on")
+            filtered_results = [result for result in results if result and not any(blacklisted in result.get("href", "") for blacklisted in blacklist)]
+            return filtered_results
+
+    search_thread = threading.Thread(target=search)
+    search_thread.start()
+    search_thread.join(timeout=timeout)
+
+    if search_thread.is_alive():
+        print(f"Search timed out after {timeout} seconds.")
+        return []
+
+    return search()
 
 def get_site_content(url):
     """
@@ -42,16 +58,16 @@ def get_site_content(url):
         str or None: Extracted text content of the article, or None if failed to fetch.
     """
     try:
-        response = requests.get(url, timeout=10)  
-        response.raise_for_status()  
-        
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+
         soup = BeautifulSoup(response.text, 'html.parser')
-        article_content = soup.find_all('p') 
+        article_content = soup.find_all('p')
         output = "\n\n".join(part.get_text() for part in article_content[1:-1])
         if not output.strip():
             return None
         return output
-    
+
     except RequestException as e:
         print(f"Article website not reachable, searching more... .")
         return None
@@ -84,7 +100,7 @@ def get_trend_contents(trend_number, number_of_articles_to_read):
                 articles.append(article)
                 contents.append(content)
 
-        if not new_articles:  
+        if not new_articles:
             break
 
     return contents[:number_of_articles_to_read]

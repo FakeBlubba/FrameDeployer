@@ -59,7 +59,6 @@ class ResourceManager:
             return False
         
         sentiment_analysis_output = modules.sentiment_analysis.get_summarization_emotion(text_script)
-        
         if not sentiment_analysis_output:
             print("Error: during the sentiment analysis output.")
             return False
@@ -75,7 +74,6 @@ class ResourceManager:
         
         #   Setting up the music based on the emotion
         music_path = modules.media_finder.selectMusicByEmotion(sentiment_analysis_output, music_folder_path)
-        
         if not music_path:
             print("Error: selecting the music path.")
             shutil.rmtree(path)

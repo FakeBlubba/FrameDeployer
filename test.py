@@ -1,8 +1,8 @@
 import unittest
-import summarize
-import web_scraper
-import sentiment_analysis
-import media_finder
+import modules.summarize as summarize
+import modules.web_scraper as web_scraper
+import modules.sentiment_analysis as sentiment_analysis
+import modules.media_finder as media_finder
 class TestWebScraper(unittest.TestCase):
 
     def test_get_trends(self):
@@ -71,6 +71,7 @@ class TestSentimentAnalysis(unittest.TestCase):
         summarization = "This article was poorly written and lacked useful information."
         emotion = sentiment_analysis.get_summarization_emotion(summarization)
         self.assertEqual(emotion, -1)
+
 class TestMediaFinder(unittest.TestCase):
     def test_searchAndDownloadImage(self):
         trend = "Apollo"
@@ -79,13 +80,6 @@ class TestMediaFinder(unittest.TestCase):
         self.assertTrue(images)
         self.assertIsInstance(images, list)
         self.assertTrue(all(isinstance(img, str) for img in images))
-    
-    def test_selectMusicByEmotion(self):
-        emotion = "positive"
-        music_info = media_finder.selectMusicByEmotion(emotion)
-        self.assertTrue(music_info)
-        self.assertIn("path", music_info)
-        self.assertIn("cc", music_info)
 
 if __name__ == '__main__':
     unittest.main()

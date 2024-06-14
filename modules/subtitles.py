@@ -15,6 +15,15 @@ aai.settings.api_key = API_KEY
 
 
 def format_timestamp(milliseconds):
+    """
+    Formats timestamp from milliseconds to HH:MM:SS,MMM format.
+
+    Args:
+    - milliseconds (int): Time duration in milliseconds.
+
+    Returns:
+    - str: Formatted timestamp string in HH:MM:SS,MMM format.
+    """
     hours = milliseconds // (1000*60*60)
     milliseconds -= hours * (1000*60*60)
     minutes = milliseconds // (1000*60)
@@ -26,13 +35,14 @@ def format_timestamp(milliseconds):
 
 def split_chunks(chunk_data, break_point=3):
     """
-    Formats timestamp from milliseconds to HH:MM:SS,MMM format.
+    Splits audio chunks based on silence and filters out stopwords.
 
     Args:
-    - milliseconds (int): Time duration in milliseconds.
+    - chunk_data (list): List of chunks where each chunk is [transcription, duration].
+    - break_point (int): Number of segments to split each chunk.
 
     Returns:
-    - str: Formatted timestamp string in HH:MM:SS,MMM format.
+    - list: List of segmented chunks with reduced stopwords.
     """
     new_chunk_data = []
     for index, chunk in enumerate(chunk_data):
@@ -77,14 +87,13 @@ def split_chunks(chunk_data, break_point=3):
 #   ["test", duration]
 def process_chunk_data(chunk_data):
     """
-    Splits audio chunks based on silence and filters out stopwords.
+    Apply text preprocessing on chunks.
 
     Args:
-    - chunk_data (list): List of chunks where each chunk is [transcription, duration].
-    - break_point (int): Number of segments to split each chunk.
+    - chunk_data (chunk): A chunk of audio.
 
     Returns:
-    - list: List of segmented chunks with reduced stopwords.
+    - list: List of segmented chunks with duration.
     """
     chunk_data_processed = []    
     complete_duration = 0
@@ -141,8 +150,7 @@ def generate_chunks_and_get_data(audio_path, min_silence_len = 150, keep_silence
     sound = AudioSegment.from_file(audio_path)
     chunks = split_on_silence(sound, min_silence_len = min_silence_len, silence_thresh=sound.dBFS-14, keep_silence = keep_silence)
     chunk_data = []
-    
-    chunk_folder = os.path.join(audio_path.split("\\")[:-1], "chunks")
+    chunk_folder = os.path.join(audio_path.replace(audio_path.split("\\")[-1], "") , "chunks")
     if not os.path.exists(chunk_folder):
         os.makedirs(chunk_folder)
     for i, chunk in enumerate(chunks):

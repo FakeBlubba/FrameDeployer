@@ -1,4 +1,4 @@
-import pyttsx3
+import pyttsx4 as pyttsx3
 import os
 
 def get_text_to_speech(text, path, speaker_name = "English"):
