@@ -1,9 +1,9 @@
 #   Folders
-media/
-source/
-data/
+/media/*
+!/media/props/
+/media/props/*
 
-#   Enviroment and enviroment variables files and folder
+#   Environment and environment variables files and folder
 .venv/
 myenv/
 .env
@@ -16,5 +16,3 @@ modules/__pycache__/
 create_doc.py
 Makefile
 make.bat
-
-!media/props
