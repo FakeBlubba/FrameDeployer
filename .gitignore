@@ -16,3 +16,5 @@ modules/__pycache__/
 create_doc.py
 Makefile
 make.bat
+
+!media/props

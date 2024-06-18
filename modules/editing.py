@@ -29,7 +29,7 @@ def convert_to_rgb_resize_and_blur(image_path):
         aspect_ratio = original_width / original_height
         new_width = int(new_height * aspect_ratio)
         resized_img = img.convert('RGB').resize((new_width, new_height), PIL.Image.Resampling.LANCZOS)
-        blurred_img = resized_img.filter(ImageFilter.GaussianBlur(radius=10))  
+        blurred_img = resized_img.filter(ImageFilter.GaussianBlur(radius=3))  
         blurred_img_np = np.array(blurred_img)
         return blurred_img_np, new_width, new_height
 

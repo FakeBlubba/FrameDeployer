@@ -149,7 +149,7 @@ def download_image(image_url, folder_path, image_name):
         folder_path (str): The folder path to save the downloaded image.
         image_name (str): The name to assign to the downloaded image.
     """
-    save_path = os.path.join(folder_path, image_name + ".jpg")
+    save_path = os.path.join(folder_path + " ", image_name + ".jpg")
     headers = {
         'User-Agent': 'Mozilla/5.0'
     }

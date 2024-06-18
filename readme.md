@@ -13,6 +13,7 @@
 <!-- tocstop -->
 
 # FrameDeployer
+![logo](https://github.com/FakeBlubba/FrameDeployer/blob/master/media/props/logob.png?raw=true)
 
 ## Overview
 FrameDeployer is a tool designed to automatically create videos based on current trends. It utilizes sentiment analysis, text-to-speech, and multimedia processing techniques to generate engaging and informative videos. This project aims to simplify video content creation by automating various steps, from information retrieval to final video production.
@@ -94,10 +95,8 @@ nltk.download('punkt')
 Now you have to install ImageMagick [clicking here](https://imagemagick.org/script/download.php). If you're on Windows you have to link the path of the executable you've installed in ```conf.py```:
 
 ```python
-IMAGEMAGICK_BINARY = r"C:\\Program Files\\ImageMagick-7.1.1-Q16-HDRI\\magick.exe"
+IMAGEMAGICK_BINARY = r"INSERT/YOUR/PATH/HERE.exe"
 ```
-
-
 
 You have also to add your API key of assemblyAI transcriber engine in ```data/var.env```:
 
