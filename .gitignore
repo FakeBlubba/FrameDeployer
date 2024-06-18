@@ -1,7 +1,6 @@
 #   Folders
 /media/*
 !/media/props/
-/media/props/*
 
 #   Environment and environment variables files and folder
 .venv/
