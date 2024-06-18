@@ -15,6 +15,8 @@
 # FrameDeployer
 ![logo](https://github.com/FakeBlubba/FrameDeployer/blob/master/media/props/logob.png?raw=true)
 
+![Logo]([http://url/to/img.png](https://imgur.com/OmFHGOo))
+
 ## Overview
 FrameDeployer is a tool designed to automatically create videos based on current trends. It utilizes sentiment analysis, text-to-speech, and multimedia processing techniques to generate engaging and informative videos. This project aims to simplify video content creation by automating various steps, from information retrieval to final video production.
 
