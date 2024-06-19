@@ -67,18 +67,18 @@ def edit_caption(txt):
     - TextClip: Generated TextClip object.
     '''
     txt = txt.upper()
-    max_text_width = 900
+    max_text_width = 850
     font_path = 'media\\props\\Comfortaa.ttf'
     
 
     return TextClip(
         txt,
-        font=font_path,
-        fontsize=160,
-        color='#B91818',
-        stroke_color='white',
+        font="Impact",
+        fontsize=100,
+        color='white',
+        stroke_color='black',
         stroke_width=1.5,
-        size=(max_text_width, None),
+        size=(max_text_width, max_text_width),
         align='North'
     ).set_position('North')
 

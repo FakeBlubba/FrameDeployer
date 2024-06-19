@@ -8,7 +8,7 @@ def get_text_to_speech(text, path, speaker_name = "English"):
         if speaker_name in voice.name:
             engine.setProperty('voice', voice.id)
             break
-    engine.setProperty('rate', 160)
+    engine.setProperty('rate', 120)
     try:
         folder_path = os.path.join(path, "speech.wav")
         engine.save_to_file(text, folder_path)
@@ -19,6 +19,6 @@ def get_text_to_speech(text, path, speaker_name = "English"):
     return folder_path
 
 
-#speaker_name = "Microsoft Elsa Desktop - Italian (Italy)"  # per l'italiano
-# speaker_name = "Microsoft Zira Desktop - English (United States)"  # per l'inglese
+#speaker_name = "Microsoft Elsa Desktop - Italian (Italy)"  # for italian
+# speaker_name = "Microsoft Zira Desktop - English (United States)"  # for english
 #get_text_to_speech("", text, "media\\Clippers08-02-2024", speaker_name = "English")

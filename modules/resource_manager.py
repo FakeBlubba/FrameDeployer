@@ -7,6 +7,7 @@ import modules.subtitles
 import modules.text_to_speech
 import modules.summarize
 import modules.media_finder
+import modules.file_manager
 
 class ResourceManager:
     def __init__(self, trend_number, number_of_articles_to_read=10, text_articles=8, text_length=7, desc_articles=5, desc_length=3, language="English"):
@@ -47,7 +48,6 @@ class ResourceManager:
         
         text_script, tags = modules.summarize.apply_summarization_article_on_trend(contents, self.text_length)
         description, _ = modules.summarize.apply_summarization_article_on_trend(desc_contents_scrapped, self.desc_length)
-        emoji = modules.sentiment_analysis.select_emoji_based_on_description(description)
         
         if not text_script:
             print("Error: Summarization failed.")
@@ -68,7 +68,7 @@ class ResourceManager:
         part = str(images[0].split("/"))[:-1].split("\\")
         path = os.path.join(part[0][2:], part[2])
         music_folder_path = os.path.join(part[0][2:], "music")
-        tags = [f"#{tag}" for index, tag in enumerate(tags) if index < 15]
+        tags = [f"#{tag}" for index, tag in enumerate(tags) if index < 25]
         tags = " ".join(tags)
         music_path = modules.media_finder.selectMusicByEmotion(sentiment_analysis_output, music_folder_path)
         
@@ -96,10 +96,11 @@ class ResourceManager:
             "TextScript": text_script,
             "Audio": audio_file,
             "subs": srt_file,
-            "Description": f"{emoji} {description[1:]}",
-            "Tags": tags,
+            "Description": description,
+            "Tags": tags + "#IA",
             "Images": images,
-            "MusicPath": music_path
+            "MusicPath": music_path,
+            "dir": path
         }
         
         return output
@@ -109,6 +110,7 @@ class ResourceManager:
         
         if output:
             modules.editing.create_video_with_data(output)
+            modules.file_manager.delete_files_except_mp4(output["dir"])
             description_text = f"{output['Description']}\n\n🎵 Music: {output['MusicPath']['cc']}\n\n\n{output['Tags']}"
             print(description_text)
             return description_text
