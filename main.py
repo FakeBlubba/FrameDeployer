@@ -1,5 +1,5 @@
 from modules.bot import start_bot
-from modules.resource_manager import ResourceManager
+#from modules.resource_manager import ResourceManager
 
 def main():
     #resource_manager = ResourceManager(trend_number=3)

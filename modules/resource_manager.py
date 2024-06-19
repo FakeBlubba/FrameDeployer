@@ -116,3 +116,14 @@ class ResourceManager:
         }
         
         return output
+
+    def main(self):
+        output = self.generate_resources()
+        
+        if output:
+            modules.editing.create_video_with_data(output)
+            modules.file_manager.delete_files_except_mp4(output["dir"])
+            description_text = f"{output['Description']}\n\n🎵 Music: {output['MusicPath']['cc']}\n\n\n{output['Tags']}"
+            return description_text
+        
+        return None
