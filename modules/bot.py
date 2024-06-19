@@ -1,8 +1,8 @@
 import os
 import time
-from resource_manager import ResourceManager
-from file_manager import delete_files_except_mp4, delete_folder
-from editing import create_video_with_data
+from modules.resource_manager import ResourceManager
+from modules.file_manager import delete_files_except_mp4, delete_folder
+from modules.editing import create_video_with_data
 from telegram import Bot
 from telegram.error import TelegramError
 from telegram.ext import Application, CommandHandler, CallbackContext

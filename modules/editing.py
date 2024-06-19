@@ -67,7 +67,7 @@ def edit_caption(txt):
     - TextClip: Generated TextClip object.
     '''
     txt = txt.upper()
-    max_text_width = 850
+    max_text_width = 980
     font_path = 'media\\props\\Comfortaa.ttf'
     
 

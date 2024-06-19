@@ -49,7 +49,19 @@ class ResourceManager:
         text_script, tags = modules.summarize.apply_summarization_article_on_trend(contents, self.text_length)
         description, _ = modules.summarize.apply_summarization_article_on_trend(desc_contents_scrapped, self.desc_length)
         
-        if not text_script:
+        
+        text_script = description + ' ' + text_script
+
+        unique_sentences = []
+        seen_sentences = set()
+        for sentence in text_script.split('.'):
+            stripped_sentence = sentence.strip()
+            if stripped_sentence and stripped_sentence not in seen_sentences:
+                unique_sentences.append(stripped_sentence)
+                seen_sentences.add(stripped_sentence)
+        text_script = '. '.join(unique_sentences) + '.'
+        
+        if not text_script or not description:
             print("Error: Summarization failed.")
             return None
         
