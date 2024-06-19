@@ -8,7 +8,6 @@ import modules.text_to_speech
 import modules.summarize
 import modules.media_finder
 import modules.file_manager
-
 class ResourceManager:
     def __init__(self, trend_number, number_of_articles_to_read=10, text_articles=8, text_length=7, desc_articles=5, desc_length=3, language="English"):
         """
@@ -31,7 +30,7 @@ class ResourceManager:
         self.desc_length = desc_length
         self.language = language
 
-    def generate_resources(self):
+    async def generate_resources(self):
         """
         Generates resources including text, audio, subtitles, and media for a given trend.
 

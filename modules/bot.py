@@ -1,6 +1,7 @@
 import os
 import time
 from modules.resource_manager import ResourceManager
+from modules.file_manager import delete_folder
 from telegram import Bot
 from telegram.error import TelegramError
 from telegram.ext import Application, CommandHandler, CallbackContext
@@ -33,9 +34,9 @@ async def send_videos_command(update, context):
     # Send videos for the first 5 trend numbers immediately
     for trend_number in range(5):
         resource_manager = ResourceManager(trend_number)
-        output = resource_manager.generate_resources()
+        output = await resource_manager.generate_resources()
         if output:
-            video_path = os.path.join(output['dir'], "output_video.mp4")  # Assuming the video file is named 'output_video.mp4'
+            video_path = os.path.join(output['dir'], "video.mp4")  # Assuming the video file is named 'video.mp4'
             if video_path:
                 try:
                     await context.bot.send_video(chat_id=chat_id, video=open(video_path, 'rb'), caption=output['Description'], parse_mode='MarkdownV2')
