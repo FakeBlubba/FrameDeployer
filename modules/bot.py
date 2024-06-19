@@ -30,10 +30,13 @@ I guess you want to know the currently available commands (if not, stop spamming
 async def send_videos_command(update, context):
     chat_id = update.effective_chat.id
     users_interested.add(chat_id)
-    await context.bot.send_message(chat_id=chat_id, text="You will receive trending videos every 4 hours.")
+    number = 5
+    await context.bot.send_message(chat_id=chat_id, text=f"I will send you the videos for the first {number} trends. Please wait")
     
     # Send videos for the first 5 trend numbers immediately
-    for trend_number in range(5):
+    for trend_number in range(number):
+        await context.bot.send_message(chat_id=chat_id, text=f"I will send you the videos for the first {number} trends. Please wait")
+
         resource_manager = ResourceManager(trend_number)
         output = resource_manager.generate_resources()
         if output:
