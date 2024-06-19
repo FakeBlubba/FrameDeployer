@@ -14,10 +14,9 @@ def get_text_to_speech(text, path, speaker_name = "English"):
         engine.save_to_file(text, folder_path)
         engine.runAndWait()
     except Exception as e:
-        print(f"Errore durante il salvataggio del file audio: {e}")
+        print(f"Error during the saving {e}")
     engine.stop()
     return folder_path
-
 
 
 #speaker_name = "Microsoft Elsa Desktop - Italian (Italy)"  # per l'italiano

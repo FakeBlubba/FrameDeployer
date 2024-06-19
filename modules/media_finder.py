@@ -132,8 +132,8 @@ def get_wiki_commons_image_url(trend_name, text, min_height, num_images):
         for index, element in enumerate(pages):
             image_info = pages[element]["imageinfo"][0]
             height = image_info.get("height")
-            mime_type = image_info.get("mime")  # Ottiene il tipo MIME dell'immagine
-            if height >= min_height and mime_type == "image/jpeg":  # Usa "image/jpeg" per le immagini JPEG
+            mime_type = image_info.get("mime")
+            if height >= min_height and mime_type == "image/jpeg": 
                 urls.append(image_info["url"])
                 if len(urls) >= num_images:
                     break
@@ -149,7 +149,7 @@ def download_image(image_url, folder_path, image_name):
         folder_path (str): The folder path to save the downloaded image.
         image_name (str): The name to assign to the downloaded image.
     """
-    save_path = os.path.join(folder_path + " ", image_name + ".jpg")
+    save_path = os.path.join(folder_path, image_name + ".jpg")
     headers = {
         'User-Agent': 'Mozilla/5.0'
     }

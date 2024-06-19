@@ -68,19 +68,19 @@ def edit_caption(txt):
     '''
     txt = txt.upper()
     max_text_width = 900
-    #font_path = 'media/props/good times rg.otf'
+    font_path = 'media\\props\\Comfortaa.ttf'
     
 
     return TextClip(
         txt,
-        font="Impact",
+        font=font_path,
         fontsize=160,
-        color='white',
-        stroke_color='#00bdff',
-        stroke_width=1,
+        color='#B91818',
+        stroke_color='white',
+        stroke_width=1.5,
         size=(max_text_width, None),
-        align='center'
-    ).set_position('center')
+        align='North'
+    ).set_position('North')
 
 def adjust_text_lines(text, words_per_line=4):
     ''' 
@@ -128,7 +128,7 @@ def make_textclip_with_stroke(sub):
         else:
             clip_fits = True  
 
-    composite_clip = CompositeVideoClip([stroke_clip.set_position("center"), txt_clip.set_position("center")], size=(max_width, 1880))
+    composite_clip = CompositeVideoClip([stroke_clip.set_position("North"), txt_clip.set_position("North")], size=(max_width, 1880))
     
     return composite_clip
 
