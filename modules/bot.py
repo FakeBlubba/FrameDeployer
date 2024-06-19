@@ -1,7 +1,8 @@
 import os
 import time
-from modules.resource_manager import ResourceManager
-from modules.file_manager import delete_folder
+from resource_manager import ResourceManager
+from file_manager import delete_files_except_mp4, delete_folder
+from editing import create_video_with_data
 from telegram import Bot
 from telegram.error import TelegramError
 from telegram.ext import Application, CommandHandler, CallbackContext
@@ -34,13 +35,16 @@ async def send_videos_command(update, context):
     # Send videos for the first 5 trend numbers immediately
     for trend_number in range(5):
         resource_manager = ResourceManager(trend_number)
-        output = await resource_manager.generate_resources()
+        output = resource_manager.generate_resources()
         if output:
-            video_path = os.path.join(output['dir'], "video.mp4")  # Assuming the video file is named 'video.mp4'
+            create_video_with_data(output)
+            delete_files_except_mp4(output["dir"])
+            description_text = f"```{output['Description']}\n\n🎵 Music: {output['MusicPath']['cc']}\n\n\n{output['Tags']}```"
+            video_path = os.path.join(output['dir'], "video.mp4")
             if video_path:
                 try:
-                    await context.bot.send_video(chat_id=chat_id, video=open(video_path, 'rb'), caption=output['Description'], parse_mode='MarkdownV2')
-                    time.sleep(10)  # Adjust sleep time as needed
+                    await context.bot.send_video(chat_id=chat_id, video=open(video_path, 'rb'), caption=description_text, parse_mode='MarkdownV2')
+                    time.sleep(10)
                 except TelegramError as e:
                     print(f"Error sending video to Telegram: {e}")
                 finally:

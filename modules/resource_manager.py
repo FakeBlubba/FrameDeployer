@@ -8,6 +8,7 @@ import modules.text_to_speech
 import modules.summarize
 import modules.media_finder
 import modules.file_manager
+
 class ResourceManager:
     def __init__(self, trend_number, number_of_articles_to_read=10, text_articles=8, text_length=7, desc_articles=5, desc_length=3, language="English"):
         """
@@ -30,7 +31,7 @@ class ResourceManager:
         self.desc_length = desc_length
         self.language = language
 
-    async def generate_resources(self):
+    def generate_resources(self):
         """
         Generates resources including text, audio, subtitles, and media for a given trend.
 
@@ -112,6 +113,6 @@ class ResourceManager:
             modules.file_manager.delete_files_except_mp4(output["dir"])
             description_text = f"{output['Description']}\n\n🎵 Music: {output['MusicPath']['cc']}\n\n\n{output['Tags']}"
             print(description_text)
-            return description_text
+            return description_texta
         
         return None
