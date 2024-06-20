@@ -1,6 +1,7 @@
 #   Folders
 /media/*
 !/media/props/
+!/media/music/
 /data/
 /source/
 /myenv/
