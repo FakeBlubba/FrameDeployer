@@ -8,6 +8,8 @@ from telegram import Bot
 from telegram.error import TelegramError
 from telegram.ext import Application, CommandHandler, CallbackContext
 from dotenv import load_dotenv
+import asyncio
+
 
 load_dotenv(dotenv_path='data/var.env')
 TELEGRAM_BOT_TOKEN = os.getenv("tg")
@@ -16,6 +18,13 @@ bot_name = 'FrameDeployerBot'
 
 def check_status():
     print(f'🤖 The {bot_name} is operational!')
+
+
+async def generate_resources_with_timeout(resource_manager, timeout_minutes):
+    try:
+        return await asyncio.wait_for(asyncio.to_thread(resource_manager.generate_resources), timeout_minutes * 60)
+    except asyncio.TimeoutError:
+        return None
 
 async def display_informations(update, context):  
     """
@@ -51,15 +60,19 @@ def escape_markdown_v2(text):
 async def send_videos_command(update, context):
     chat_id = update.effective_chat.id
     number = 5
+    timer = 5
     await context.bot.send_message(chat_id=chat_id, text=f"I will send you {number} videos, please wait...")
     
     for trend_number in range(number):
-        if(trend_number == 0):
-            trend_number += 0
         resource_manager = ResourceManager(trend_number)
         await context.bot.send_message(chat_id=chat_id, text=f"I am producing {trend_number + 1}/{number} right now...")
 
-        output = resource_manager.generate_resources()
+        task = asyncio.create_task(generate_resources_with_timeout(resource_manager, timer))
+        try:
+            output = await asyncio.wait_for(task, timeout=timer * 60)
+        except asyncio.TimeoutError:
+            await context.bot.send_message(chat_id=chat_id, text=f"Timeout occurred while generating resources for trend {trend_number + 1}. Moving to the next trend...")
+            continue
         if output:
             create_video_with_data(output)
             delete_files_except_mp4(output["Dir"])
@@ -68,7 +81,7 @@ async def send_videos_command(update, context):
             if video_path:
                 try:
                     await context.bot.send_video(chat_id=chat_id, video=open(video_path, 'rb'), caption=description_text, parse_mode='MarkdownV2')
-                    time.sleep(10)
+                    asyncio.sleep(10)
                 except TelegramError as e:
                     print(f"Error sending video to Telegram: {e}")
                 finally:
