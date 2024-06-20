@@ -273,7 +273,7 @@ def search_media_with_synonyms(trend_name, text, min_height, number_of_media, ge
         text (str): The text where the trend_name is found.
         min_height (int): Minimum height requirement for images.
         number_of_media (int): Number of media to retrieve.
-        get_wiki_commons_func (func): choos the func between get_wiki_commons_image and get_wiki_commons_video
+        get_wiki_commons_func (func): choose the func between get_wiki_commons_image and get_wiki_commons_video
 
     Returns:
         list: A list of URLs of the retrieved media.
@@ -304,17 +304,19 @@ def search_and_download_media(trend, text, min_height=1080, number_of_media=16):
 
     num_videos = number_of_media // 8
     urls = search_media_with_synonyms(trend, text, min_height, number_of_media - num_videos, get_wiki_commons_image_url)
+    #urls = search_media_with_synonyms(trend, text, min_height, number_of_media, get_wiki_commons_image_url)
+
     extension = ".jpg"
-    #urls2 = search_media_with_synonyms(trend, text, min_height, num_videos, get_wiki_commons_video_url)
-    #extension2 = ".mp4"
+    urls2 = search_media_with_synonyms(trend, text, min_height, num_videos, get_wiki_commons_video_url)
+    extension2 = ".mp4"
     if not urls:
         print("Unable to find images for the given trend and its synonyms.")
         #urls.extend(search_media_with_synonyms(trend, text, min_height, number_of_media - num_videos, get_wiki_commons_video_url))
 
-    '''if not urls2:
+    if not urls2:
         print("Unable to find videos for the given trend and its synonyms.")
 
-        urls.extend(search_media_with_synonyms(trend, text, min_height, num_videos, get_wiki_commons_image_url))'''
+        urls.extend(search_media_with_synonyms(trend, text, min_height, num_videos, get_wiki_commons_image_url))
     
     if not urls:
         print("Unable to find media for the given trend and its synonyms.")
@@ -323,9 +325,9 @@ def search_and_download_media(trend, text, min_height=1080, number_of_media=16):
     folder_path = modules.file_manager.create_media_folder(trend)
 
     output = []
-    '''for index, url in enumerate(urls2):
+    for index, url in enumerate(urls2):
         download_media(url, folder_path, f"media_{index + 1}", extension2)
-        output.append(os.path.join(folder_path, f"media_{index + 1}{extension2}"))'''
+        output.append(os.path.join(folder_path, f"media_{index + 1}{extension2}"))
     for index, url in enumerate(urls):
         download_media(url, folder_path, f"media_{index + 1}")
         output.append(os.path.join(folder_path, f"media_{index + 1}{extension}"))

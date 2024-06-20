@@ -15,7 +15,7 @@ TELEGRAM_BOT_TOKEN = os.getenv("tg")
 bot_name = 'FrameDeployerBot'
 
 def check_status():
-    print(f'The {bot_name} is operational!')
+    print(f'🤖 The {bot_name} is operational!')
 
 async def display_informations(update, context):  
     """
@@ -54,6 +54,8 @@ async def send_videos_command(update, context):
     await context.bot.send_message(chat_id=chat_id, text=f"I will send you {number} videos, please wait...")
     
     for trend_number in range(number):
+        if(trend_number == 0):
+            trend_number += 0
         resource_manager = ResourceManager(trend_number)
         await context.bot.send_message(chat_id=chat_id, text=f"I am producing {trend_number + 1}/{number} right now...")
 
@@ -62,7 +64,7 @@ async def send_videos_command(update, context):
             create_video_with_data(output)
             delete_files_except_mp4(output["Dir"])
             description_text = f"```{output['Description']}\n\n🎵 Music: {output['MusicPath']['cc']}\n\n\n{output['Tags']}```"
-            video_path = os.path.join(output['dir'], "video.mp4")
+            video_path = os.path.join(output['Dir'], "video.mp4")
             if video_path:
                 try:
                     await context.bot.send_video(chat_id=chat_id, video=open(video_path, 'rb'), caption=description_text, parse_mode='MarkdownV2')
@@ -70,7 +72,7 @@ async def send_videos_command(update, context):
                 except TelegramError as e:
                     print(f"Error sending video to Telegram: {e}")
                 finally:
-                    delete_folder(output['dir'])
+                    delete_folder(output['Dir'])
 
 async def start(update, context):
     await context.bot.send_message(chat_id=update.effective_chat.id, text="Hi I am FrameDeployerBot, if you want /help ask for it!")

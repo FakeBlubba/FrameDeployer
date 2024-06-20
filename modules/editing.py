@@ -1,4 +1,4 @@
-from moviepy.editor import AudioFileClip, CompositeVideoClip, ImageClip, TextClip, CompositeAudioClip, VideoFileClip
+from moviepy.editor import AudioFileClip, CompositeVideoClip, ImageClip, TextClip, CompositeAudioClip, VideoFileClip, TextClip, ColorClip, CompositeVideoClip
 from moviepy.video.tools.subtitles import SubtitlesClip
 from moviepy.video.fx.all import resize
 from PIL import Image
@@ -107,35 +107,34 @@ def make_textclip_with_stroke(sub):
     return composite_clip
 
 def add_title_with_background(title_text, duration):
-    ''' 
-    Create a title with background rectangle that shrinks and disappears after the specified duration.
-    
+    """
+    Create a title with a background rectangle that shrinks and disappears after the specified duration.
+
     Parameters:
     - title_text (str): The text to display as the title.
     - duration (int): Duration in seconds before the text shrinks and disappears.
-    
+
     Returns:
     - CompositeVideoClip: The final video clip with the title.
-    '''
-    # Create the text clip
-    txt_clip = TextClip(title_text, fontsize=70, font='media/props/ubuntu-mono.ttf', color='white')
+    """
+    txt_w = 720
+    txt_h = 45
+    txt_size = (txt_w, txt_h)
     
-    # Create a black background rectangle
-    txt_w, txt_h = txt_clip.size
-    rect_clip = TextClip(' ', fontsize=70, font='Arial-Bold', color='black', size=(txt_w, txt_h)).set_duration(duration)
+    txt_clip = TextClip(title_text, fontsize=70, font='Arial', color='white', size=txt_size)
     
-    # Composite the text and the background
+    rect_clip = ColorClip(size=txt_size, color=(0, 0, 0)).set_duration(duration)
+    
     text_with_bg = CompositeVideoClip([rect_clip, txt_clip.set_position("center")])
-
-    # Function to shrink the text and background
-    def shrink(get_frame, t):
-        factor = max(0, 1 - t / duration) 
-        return resize(get_frame(t), newsize=(txt_w * factor, txt_h * factor))
-
-    # Apply the shrink effect after the specified duration
-    final_clip = text_with_bg.set_duration(duration).fl(shrink, apply_to='mask')
-
+    
+    def resize_clip(clip, t):
+        factor = max(0, 1 - t / duration)
+        return clip.resize(width=int(txt_w * factor), height=int(txt_h * factor))
+    
+    final_clip = text_with_bg.fl(resize_clip, apply_to=['mask'])
+    
     return final_clip
+
 
 def create_video_with_data(data):
     ''' 
@@ -179,8 +178,8 @@ def create_video_with_data(data):
     video_clip = video_clip.set_audio(final_audio)
     
     subs = SubtitlesClip(srt_path, edit_caption).set_position(('center', 580))
-    title_clip = add_title_with_background(title_text, duration=10).set_position("center").set_duration(10)
 
-    final_clip = CompositeVideoClip([video_clip, frame_clip, subs, title_clip], size=video_size)
+    final_clip = CompositeVideoClip([video_clip, frame_clip, subs], size=video_size)
     
     final_clip.write_videofile(output_video_path, fps=24)
+
