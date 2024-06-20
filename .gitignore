@@ -4,11 +4,13 @@
 /data/
 /source/
 /myenv/
+source/
 
 #   Environment and environment variables files and folder
 .venv/
 .env
 .rst
+
 #   Python folders
 __pycache__/
 modules/__pycache__/
