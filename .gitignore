@@ -1,12 +1,14 @@
 #   Folders
 /media/*
 !/media/props/
+/data/
+/source/
+/myenv/
 
 #   Environment and environment variables files and folder
 .venv/
-myenv/
 .env
-
+.rst
 #   Python folders
 __pycache__/
 modules/__pycache__/
