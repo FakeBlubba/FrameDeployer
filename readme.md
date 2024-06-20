@@ -116,7 +116,6 @@ aai="your-api-key"
 
 # Documentation
 
-> [!NOTE]
->
-> The project is currently under development. The documentation will come when the final build will be released.
+You can check the documentation by clicking: ![here].(https://github.com/FakeBlubba/FrameDeployer/blob/master/build/_static/index.html?raw=true)
+
 
