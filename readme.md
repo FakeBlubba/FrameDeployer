@@ -116,6 +116,6 @@ aai="your-api-key"
 
 # Documentation
 
-You can check the documentation by clicking: ![here](https://github.com/FakeBlubba/FrameDeployer/blob/master/build/_static/index.html?raw=true).
+You can check the documentation by clicking: ![here](https://github.com/FakeBlubba/FrameDeployer/blob/master/build/index.html?raw=true).
 
 
