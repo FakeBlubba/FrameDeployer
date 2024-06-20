@@ -1,6 +1,6 @@
-from moviepy.editor import AudioFileClip, CompositeVideoClip, ImageClip, TextClip, CompositeAudioClip
+from moviepy.editor import AudioFileClip, CompositeVideoClip, ImageClip, TextClip, CompositeAudioClip, VideoFileClip
 from moviepy.video.tools.subtitles import SubtitlesClip
-from moviepy.editor import ImageClip
+from moviepy.video.fx.all import resize
 from PIL import Image
 import PIL.ImageFilter as ImageFilter
 import numpy as np
@@ -10,29 +10,6 @@ import moviepy.config as mpy_config
 import conf
 
 mpy_config.change_settings({"IMAGEMAGICK_BINARY": conf.IMAGEMAGICK_BINARY})
-
-def convert_to_rgb_resize_and_blur(image_path):
-    ''' 
-    Convert the image to RGB format, resize while maintaining aspect ratio, and apply Gaussian blur.
-    
-    Parameters:
-    - image_path (str): Path of the image to process.
-    
-    Returns:
-    - blurred_img_np (np.ndarray): Numpy array of the processed image.
-    - new_width (int): Width of the resized image.
-    - new_height (int): Height of the resized image.
-    '''
-    with Image.open(image_path) as img:
-        original_width, original_height = img.size
-        new_height = 1920
-        aspect_ratio = original_width / original_height
-        new_width = int(new_height * aspect_ratio)
-        resized_img = img.convert('RGB').resize((new_width, new_height), Image.Resampling.LANCZOS)
-        blurred_img = resized_img.filter(ImageFilter.GaussianBlur(radius=3))  
-        blurred_img_np = np.array(blurred_img)
-        return blurred_img_np, new_width, new_height
-
 
 def convert_to_rgb_resize_and_blur(image_path):
     ''' 
@@ -70,17 +47,16 @@ def edit_caption(txt):
     max_text_width = 980
     font_path = 'media\\props\\Comfortaa.ttf'
     
-
     return TextClip(
         txt,
         font="Impact",
-        fontsize=100,
+        fontsize=120,
         color='white',
         stroke_color='black',
-        stroke_width=1.5,
-        size=(max_text_width, max_text_width),
+        stroke_width=2.5,
+        size=(max_text_width, None),
         align='North'
-    ).set_position('North')
+    ).set_position('center', 'center')
 
 def adjust_text_lines(text, words_per_line=4):
     ''' 
@@ -93,11 +69,9 @@ def adjust_text_lines(text, words_per_line=4):
     Returns:
     - str: Adjusted text with line breaks.
     '''
-
     words = text.split()  
     lines = [' '.join(words[i:i+words_per_line]) for i in range(0, len(words), words_per_line)]
     return '\n'.join(lines)
-
 
 def make_textclip_with_stroke(sub):
     ''' 
@@ -132,6 +106,37 @@ def make_textclip_with_stroke(sub):
     
     return composite_clip
 
+def add_title_with_background(title_text, duration):
+    ''' 
+    Create a title with background rectangle that shrinks and disappears after the specified duration.
+    
+    Parameters:
+    - title_text (str): The text to display as the title.
+    - duration (int): Duration in seconds before the text shrinks and disappears.
+    
+    Returns:
+    - CompositeVideoClip: The final video clip with the title.
+    '''
+    # Create the text clip
+    txt_clip = TextClip(title_text, fontsize=70, font='media/props/ubuntu-mono.ttf', color='white')
+    
+    # Create a black background rectangle
+    txt_w, txt_h = txt_clip.size
+    rect_clip = TextClip(' ', fontsize=70, font='Arial-Bold', color='black', size=(txt_w, txt_h)).set_duration(duration)
+    
+    # Composite the text and the background
+    text_with_bg = CompositeVideoClip([rect_clip, txt_clip.set_position("center")])
+
+    # Function to shrink the text and background
+    def shrink(get_frame, t):
+        factor = max(0, 1 - t / duration) 
+        return resize(get_frame(t), newsize=(txt_w * factor, txt_h * factor))
+
+    # Apply the shrink effect after the specified duration
+    final_clip = text_with_bg.set_duration(duration).fl(shrink, apply_to='mask')
+
+    return final_clip
+
 def create_video_with_data(data):
     ''' 
     Create a video using provided data, combining images, audio, subtitles, and music.
@@ -139,9 +144,10 @@ def create_video_with_data(data):
     Parameters:
     - data (dict): Dictionary containing paths to audio, music, subtitles, images, and other metadata.
     '''
+    title_text = data["Trend_name"]
     audio_path = data['Audio']
     music_path = data["MusicPath"]["path"]
-    srt_path = data['subs']
+    srt_path = data['Subs']
     images = data['Images']
     images_folder = os.path.dirname(images[0])
     output_video_path = os.path.join(images_folder, "video.mp4")
@@ -155,7 +161,6 @@ def create_video_with_data(data):
     base_image_duration = (total_video_duration - 4) / len(images)
     
     video_size = (1080, 1920)
-    # Load and resize the frame image
     frame_path = 'media/props/frame.png'
     frame_clip = ImageClip(frame_path).set_duration(total_video_duration).resize(video_size)
     
@@ -165,24 +170,17 @@ def create_video_with_data(data):
         if index == 0 or index == len(images) - 1:
             image_duration += 2
         
-        # Process each image
         resized_img, new_width, new_height = convert_to_rgb_resize_and_blur(image_path)
         img_clip = ImageClip(resized_img).set_position(('center', 'center')).set_duration(image_duration)
         image_clips.append(img_clip.set_start((index * base_image_duration) if index != 0 else 0))
     
-    # CompositeVideoClip of all image clips
     video_clip = CompositeVideoClip(image_clips, size=video_size)
     video_clip = video_clip.set_duration(total_video_duration)
     video_clip = video_clip.set_audio(final_audio)
     
-    # Subtitles clip
-    subs = SubtitlesClip(srt_path, edit_caption).set_position(('center', 'center'))
-    
-    final_clip = CompositeVideoClip([video_clip, frame_clip, subs], size=video_size)
+    subs = SubtitlesClip(srt_path, edit_caption).set_position(('center', 580))
+    title_clip = add_title_with_background(title_text, duration=10).set_position("center").set_duration(10)
+
+    final_clip = CompositeVideoClip([video_clip, frame_clip, subs, title_clip], size=video_size)
     
     final_clip.write_videofile(output_video_path, fps=24)
-
-
-
-#data = {'Trend': 'Apollo', 'TextScript': 'The god was most commonly identified by either a bow or a musical instrument (usually a lyre, but sometimes a more specialized stringed instrument called a cithara). In addition to the bow, lyre, and cithara, Apollo was also represented by the tripod, a tall, three-footed structure (sometimes elaborately decorated) used for sacrifices and religious rituals.\nThis license lets others remix, tweak, and build upon this content non-commercially, as long as they credit the author and license their new creations under the identical terms. One second later the descent rocket engine was cut off, as the astronauts gazed down onto a sheet of lunar soil blown radially in all directions.\nApollo 8 carried out the first step of crewed lunar exploration: from Earth orbit it was injected into a lunar trajectory, completed lunar orbit, and returned safely to Earth. In the method ultimately employed, lunar orbit rendezvous, a powerful launch vehicle (Saturn V rocket) placed a 50-ton spacecraft in a lunar trajectory.', 'Audio': 'media\\Apollo12-02-2024\\speech.wav', 'subs': 'media\\Apollo12-02-2024\\sub.srt', 'Description': '\nThe god was most commonly identified by either a bow or a musical instrument (usually a lyre, but sometimes a more specialized stringed instrument called a cithara).\n', 'Tags': '#Toward #end #th #lunar #orbit #Apollo #spacecraft #became #two #separate #Columbia #piloted #Collins #Eagle #occupied', 'Images': ['media\\Apollo12-02-2024\\image_1.jpg', 'media\\Apollo12-02-2024\\image_2.jpg', 'media\\Apollo12-02-2024\\image_3.jpg', 'media\\Apollo12-02-2024\\image_4.jpg', 'media\\Apollo12-02-2024\\image_5.jpg', 'media\\Apollo12-02-2024\\image_6.jpg', 'media\\Apollo12-02-2024\\image_7.jpg', 'media\\Apollo12-02-2024\\image_8.jpg', 'media\\Apollo12-02-2024\\image_9.jpg', 'media\\Apollo12-02-2024\\image_10.jpg', 'media\\Apollo12-02-2024\\image_11.jpg', 'media\\Apollo12-02-2024\\image_12.jpg', 'media\\Apollo12-02-2024\\image_13.jpg', 'media\\Apollo12-02-2024\\image_14.jpg', 'media\\Apollo12-02-2024\\image_15.jpg', 'media\\Apollo12-02-2024\\image_16.jpg'], 'MusicPath': {'path': 'media/music/1\\Rameses B - Keep You [NCS Release].mp3', 'cc': 'Song: Rameses B - Keep You [NCS Release]\nMusic provided by NoCopyrightSounds\nFree Download/Stream: http://ncs.io/RB_KeepYou\nWatch: http://ncs.lnk.to/RB_KeepYouAT/youtube'}}
-#create_video_with_data(data)

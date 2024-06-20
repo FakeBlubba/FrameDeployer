@@ -1,5 +1,6 @@
 import os
 import time
+from datetime import datetime, timedelta
 from modules.resource_manager import ResourceManager
 from modules.file_manager import delete_files_except_mp4, delete_folder
 from modules.editing import create_video_with_data
@@ -12,7 +13,6 @@ load_dotenv(dotenv_path='data/var.env')
 TELEGRAM_BOT_TOKEN = os.getenv("tg")
 
 bot_name = 'FrameDeployerBot'
-users_interested = set()
 
 def check_status():
     print(f'The {bot_name} is operational!')
@@ -35,19 +35,32 @@ I guess you want to know the currently available commands (if not, stop spamming
     escaped_info = escape_markdown_v2(info)
     await update.message.reply_text(escaped_info, parse_mode='MarkdownV2')
 
+def escape_markdown_v2(text):
+    """
+    Escapes reserved characters in MarkdownV2 mode.
+
+    Args:
+    - text (str): The text to be escaped.
+
+    Returns:
+    - str: The escaped text.
+    """
+    escape_chars = r'\_*[]()~`>#+-=|{}.!'
+    return ''.join([f'\\{char}' if char in escape_chars else char for char in text])
 
 async def send_videos_command(update, context):
     chat_id = update.effective_chat.id
-    users_interested.add(chat_id)
-    await context.bot.send_message(chat_id=chat_id, text="You will receive trending videos every 4 hours.")
+    number = 5
+    await context.bot.send_message(chat_id=chat_id, text=f"I will send you {number} videos, please wait...")
     
-    # Send videos for the first 5 trend numbers immediately
-    for trend_number in range(5):
+    for trend_number in range(number):
         resource_manager = ResourceManager(trend_number)
+        await context.bot.send_message(chat_id=chat_id, text=f"I am producing {trend_number + 1}/{number} right now...")
+
         output = resource_manager.generate_resources()
         if output:
             create_video_with_data(output)
-            delete_files_except_mp4(output["dir"])
+            delete_files_except_mp4(output["Dir"])
             description_text = f"```{output['Description']}\n\n🎵 Music: {output['MusicPath']['cc']}\n\n\n{output['Tags']}```"
             video_path = os.path.join(output['dir'], "video.mp4")
             if video_path:
@@ -57,11 +70,10 @@ async def send_videos_command(update, context):
                 except TelegramError as e:
                     print(f"Error sending video to Telegram: {e}")
                 finally:
-                    # Delete the directory after sending the video
                     delete_folder(output['dir'])
 
 async def start(update, context):
-    await context.bot.send_message(chat_id=update.effective_chat.id, text="Welcome! I will send you trending videos every 4 hours.")
+    await context.bot.send_message(chat_id=update.effective_chat.id, text="Hi I am FrameDeployerBot, if you want /help ask for it!")
 
 def start_bot():
     application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
@@ -69,8 +81,8 @@ def start_bot():
     
     # Register handlers
     application.add_handler(CommandHandler('start', start))
-    application.add_handler(CommandHandler('sendVideos', send_videos_command))
-    application.add_handler(CommandHandler('info', display_informations))
+    application.add_handler(CommandHandler('send_videos', send_videos_command))
+    application.add_handler(CommandHandler('help', display_informations))
 
     # Start the bot
     application.run_polling()

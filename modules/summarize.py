@@ -19,6 +19,27 @@ def preprocess_article(article_content):
 
     return article_content, formatted_article_content
 
+def filter_promotional_sentences(text):
+    """
+    Filters out sentences containing promotional or commercial content.
+
+    Args:
+        text (str): The text to filter.
+
+    Returns:
+        str: The filtered text without promotional sentences.
+    """
+    promo_keywords = [ 'compensated', 'promotional', 'sponsored', 'on this site', 'on this website', 'subscription']
+
+    promo_pattern = r'\b(?:{})\b'.format('|'.join(promo_keywords))
+
+    filtered_sentences = []
+    for sentence in nltk.sent_tokenize(text):
+        if not re.search(promo_pattern, sentence, flags=re.IGNORECASE):
+            filtered_sentences.append(sentence)
+
+    return ' '.join(filtered_sentences)
+
 def get_most_used_words(formatted_text):
     """
     Computes word frequencies in the formatted text, excluding stopwords.
@@ -101,19 +122,24 @@ def apply_summarization_to_article(site_content, number_of_sentences):
     Returns:
         tuple: A tuple containing the summarized text and word frequencies used.
     """
-    site_content = re.split(r'(?<=[.!?]) +', site_content)
-    limit = len(site_content) // 3
+    # Filter out promotional sentences
+    filtered_content = filter_promotional_sentences(site_content)
+
+    # Split filtered content into segments and summarize each segment
+    site_content_segments = re.split(r'(?<=[.!?]) +', filtered_content)
+    limit = len(site_content_segments) // 3
     processed_list = [
-        " ".join(site_content[:int(limit)]), 
-        " ".join(site_content[int(limit):int(2 * limit)]),
-        " ".join(site_content[int(2 * limit):])
-        ]
+        " ".join(site_content_segments[:int(limit)]), 
+        " ".join(site_content_segments[int(limit):int(2 * limit)]),
+        " ".join(site_content_segments[int(2 * limit):])
+    ]
+
     for index, element in enumerate(processed_list):
-        
         processed_text, formatted_text = preprocess_article(element)
         words = get_most_used_words(formatted_text)
         sentences = get_most_sentence_scores(processed_text, words)
-        processed_list[index] = summarize_text(sentences, int(round(number_of_sentences / 3)))    
+        processed_list[index] = summarize_text(sentences, int(round(number_of_sentences / 3)))
+
     return "\n".join(processed_list), words
 
 def apply_summarization_article_on_trend(contents, number_of_sentences):

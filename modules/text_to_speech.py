@@ -19,6 +19,6 @@ def get_text_to_speech(text, path, speaker_name = "English"):
     return folder_path
 
 
-#speaker_name = "Microsoft Elsa Desktop - Italian (Italy)"  # for italian
-# speaker_name = "Microsoft Zira Desktop - English (United States)"  # for english
+#speaker_name = "Microsoft Elsa Desktop - Italian (Italy)"  # per l'italiano
+# speaker_name = "Microsoft Zira Desktop - English (United States)"  # per l'inglese
 #get_text_to_speech("", text, "media\\Clippers08-02-2024", speaker_name = "English")

@@ -1,5 +1,22 @@
 import os
 import shutil
+from datetime import datetime
+
+def create_media_folder(trend):
+    """
+    Creates a folder for media based on the trend name and current date.
+
+    Args:
+        trend (str): The trend or topic name.
+
+    Returns:
+        str: The path to the created folder.
+    """
+    date_string = datetime.now().strftime("%d-%m-%Y")
+    folder_path = os.path.join("media", f"{trend} {date_string}")
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)
+    return folder_path
 
 def delete_files_except_mp4(directory):
     """
