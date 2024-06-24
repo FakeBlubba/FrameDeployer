@@ -4,6 +4,7 @@ from duckduckgo_search import DDGS
 import requests
 from requests.exceptions import RequestException
 import threading
+import time
 
 class TimeoutException(Exception):
     pass
@@ -18,34 +19,55 @@ def get_trends():
     pytrend = TrendReq()
     return pytrend.trending_searches().iloc[:, 0].tolist()
 
-def get_articles_on_topic_excluding_blacklist(topic, max_searches, blacklist, timeout=10):
+def search(topic, max_searches, blacklist, timeout=10, retries=3, backoff_factor=2):
     """
-    Searches for articles related to a given topic while excluding URLs in the blacklist.
+    Searches for articles related to a given topic while excluding URLs in the blacklist, with retry logic.
 
     Args:
         topic (str): The topic of interest for article searches.
         max_searches (int): Maximum number of search results to fetch.
         blacklist (list): List of URLs to exclude from search results.
         timeout (int): Timeout in seconds for the search.
+        retries (int): Number of retry attempts.
+        backoff_factor (int): Backoff factor for retries.
 
     Returns:
         list: List of filtered search results (articles), or empty list if timeout.
     """
-    def search():
+    def search_attempt():
         with DDGS() as ddgs:
             results = ddgs.text(topic, max_results=max_searches, safesearch="on")
             filtered_results = [result for result in results if result and not any(blacklisted in result.get("href", "") for blacklisted in blacklist)]
             return filtered_results
 
-    search_thread = threading.Thread(target=search)
-    search_thread.start()
-    search_thread.join(timeout=timeout)
+    for attempt in range(retries):
+        try:
+            search_thread = threading.Thread(target=search_attempt)
+            search_thread.start()
+            search_thread.join(timeout=timeout)
 
-    if search_thread.is_alive():
-        print(f"Search timed out after {timeout} seconds.")
-        return []
+            if search_thread.is_alive():
+                print(f"Search attempt {attempt + 1} timed out after {timeout} seconds.")
+                search_thread.join()
+                continue
+            
+            return search_attempt()
+        
+        except Exception as e:
+            print(f"Exception during search attempt {attempt + 1}: {e}")
+            if attempt < retries - 1:
+                time.sleep(backoff_factor ** attempt)
+            else:
+                print("Max retries reached, returning empty results.")
+                return []
 
-    return search()
+    return []
+
+def get_articles_on_topic_excluding_blacklist(topic, max_searches, blacklist, timeout=10):
+    """
+    Wrapper to call the search function.
+    """
+    return search(topic, max_searches, blacklist, timeout)
 
 def get_site_content(url):
     """

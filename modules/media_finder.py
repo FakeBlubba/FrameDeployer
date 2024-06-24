@@ -32,7 +32,7 @@ def simplified_lesk(context_sentence, synsets):
         
         overlap = len(context.intersection(signature))
         if overlap > max_overlap:
-            if(best_sense != None):
+            if(best_sense is not None):
                 second_best_sense = best_sense
             max_overlap = overlap
             best_sense = sense
@@ -152,9 +152,9 @@ def get_search_term(trend_name, text):
     syns = wn.synsets(main_noun)
     best_senses = simplified_lesk(text, syns)
 
-    if(best_senses[1]):
+    if(best_senses[1] is not None):
         return str(best_senses[0].lemmas()[0].name() + " " + best_senses[1].lemmas()[0].name())
-    elif(best_senses[0]):
+    elif(best_senses[0] is not None):
         return str(best_senses[0].lemmas()[0].name())
     else:
         return trend_name
